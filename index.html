@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+    <picture class="lazy">
+        <source type="image/png" media="(max-width: 480px)" data-srcset="image.png">
+        <source type="image/png" media="(max-width: 1024px)" data-srcset="image.png">
+        <source type="image/png" media="(max-width: 1400px)" data-srcset="image.png">
+        <source type="image/png" data-srcset="image.png">
+        <img data-srcset="image.png" alt="Grupo Crío">
+    </picture>
+
+    <script>
+        // Polyfill
+        (function(undefined) {}).call('object' === typeof window && window || 'object' === typeof self && self || 'object' === typeof global && global || {});
+    </script>
+    <script src="intersectionObserver.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            var lazyImages =[].slice.call(
+                document.querySelectorAll(".lazy > source")
+            )
+    
+            if ("IntersectionObserver" in window) {
+                let lazyImageObserver = 
+                new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {      
+                            let lazyImage = entry.target;
+                            lazyImage.srcset = lazyImage.dataset.srcset;
+                            lazyImage.nextElementSibling.srcset = lazyImage.dataset.srcset;
+                            lazyImage.nextElementSibling.classList.add('fade-in');
+                            lazyImage.parentElement.classList.remove("lazy");
+                            lazyImageObserver.unobserve(lazyImage);
+                        }
+                    });
+                });
+    
+                lazyImages.forEach(function(lazyImage) {
+                lazyImageObserver.observe(lazyImage);
+                });
+            } else {
+                // Not supported, load all images immediately
+                lazyImages.forEach(function(image){
+                    image.nextElementSibling.src = image.nextElementSibling.dataset.srcset;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
